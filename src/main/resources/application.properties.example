@@ -1,8 +1,12 @@
 spring.application.name=marvel
 
-spring.r2dbc.url=jdbc:postgresql://localhost:5432/marvel-java
+spring.r2dbc.url=r2dbc:postgresql://localhost:5432/marvel-java
 spring.r2dbc.username=username
 spring.r2dbc.password=password
 
 spring.flyway.enabled=false
 spring.datasource.initialization-mode=never
+
+spring.sql.init.mode=always
+spring.r2dbc.generate-unique-name=false
+spring.jpa.hibernate.ddl-auto=create
