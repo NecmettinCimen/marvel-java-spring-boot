@@ -1,0 +1,14 @@
+version '3.8'
+
+services:
+  marveljavaapp:
+    build: .
+    container_name: marvel-java-app
+    environment:
+      SPRING_R2DBC_URL: r2dbc:postgresql://postgres:5432/marvel
+      SPRING_R2DBC_USERNAME: username
+      SPRING_R2DBC_PASSWORD: password
+
+networks:
+  default: 
+      name: srvnecmettin
