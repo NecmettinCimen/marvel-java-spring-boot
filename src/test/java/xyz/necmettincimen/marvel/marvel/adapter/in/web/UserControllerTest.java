@@ -11,6 +11,8 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import xyz.necmettincimen.marvel.marvel.application.service.UserService;
+import xyz.necmettincimen.marvel.marvel.common.ApiResponse;
+import xyz.necmettincimen.marvel.marvel.config.JwtUtil;
 import xyz.necmettincimen.marvel.marvel.domain.model.User;
 
 @WebFluxTest(UserController.class)
@@ -20,6 +22,8 @@ public class UserControllerTest {
 
     @MockBean
     private UserService userService;
+    @MockBean
+    private JwtUtil jwtUtil;
 
     @Test
     void getAllUsers_shouldReturnUsers() {
@@ -33,9 +37,14 @@ public class UserControllerTest {
                 .uri("/api/users")
                 .exchange()
                 .expectStatus().isOk()
-                .expectBodyList(User.class)
+                .expectBodyList(ApiResponse.class)
                 .hasSize(1)
-                .contains(user);
+                .contains(new ApiResponse(user));
+
+        webTestClient.get()
+                .uri("/api/users/1")
+                .exchange()
+                .expectStatus().isOk();
     }
 
     @Test
@@ -48,14 +57,19 @@ public class UserControllerTest {
         savedUser.setId(1L);
         savedUser.setUsername("testuser");
         savedUser.setEmail("test@gmail.com");
-        when(userService.registerUser(user)).thenReturn(Mono.just(savedUser));
+        when(userService.registerUser(user)).thenReturn(Mono.just(new ApiResponse<Object>(savedUser)));
 
         webTestClient.post()
-                .uri("api/users/register")
+                .uri("/api/users/register")
                 .bodyValue(user)
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(User.class)
-                .isEqualTo(savedUser);
+                .expectBody(ApiResponse.class)
+                .isEqualTo(new ApiResponse<User>(savedUser));
+
+        webTestClient.delete()
+                .uri("/api/users/1")
+                .exchange()
+                .expectStatus().isOk();
     }
 }

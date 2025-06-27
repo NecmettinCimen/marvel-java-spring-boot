@@ -1,17 +1,20 @@
 package xyz.necmettincimen.marvel.marvel.adapter.out.persistence;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import xyz.necmettincimen.marvel.marvel.common.ApiResponse;
 import xyz.necmettincimen.marvel.marvel.domain.model.User;
 import xyz.necmettincimen.marvel.marvel.domain.port.UserRepositoryPort;
 
 @Component
 public class UserRepositoryAdapter implements UserRepositoryPort {
     private final UserR2dbcRepository userR2dbcRepository;
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    public UserRepositoryAdapter(UserR2dbcRepository userR2dbcRepository){
+    public UserRepositoryAdapter(UserR2dbcRepository userR2dbcRepository) {
         this.userR2dbcRepository = userR2dbcRepository;
     }
 
@@ -31,13 +34,22 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
     }
 
     @Override
-    public Mono<User> save(User user) {
-        return userR2dbcRepository.save(user);
+    public Mono<ApiResponse<Object>> save(User user) {
+        return findByUsername(user.getUsername())
+                .hasElement()
+                .flatMap(exists -> {
+                    if (exists) {
+                        return Mono.just(new ApiResponse<Object>(false, "Username already exists", null));
+                    }
+                    user.setPassword(passwordEncoder.encode(user.getPassword()));
+                    return userR2dbcRepository.save(user)
+                            .map(savedUser -> new ApiResponse<Object>(true, "User saved successfully", savedUser));
+                });
     }
 
     @Override
     public Mono<Void> deleteById(Long id) {
         return userR2dbcRepository.deleteById(id);
     }
-    
+
 }

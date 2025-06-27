@@ -10,3 +10,6 @@ spring.datasource.initialization-mode=never
 spring.sql.init.mode=always
 spring.r2dbc.generate-unique-name=false
 spring.jpa.hibernate.ddl-auto=create
+
+jwt.secret=yoursecret
+jwt.expiration=86400000
