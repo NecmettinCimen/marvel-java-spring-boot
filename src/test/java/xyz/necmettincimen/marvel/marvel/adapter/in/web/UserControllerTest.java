@@ -1,75 +1,119 @@
 package xyz.necmettincimen.marvel.marvel.adapter.in.web;
 
-import static org.mockito.Mockito.when;
+import java.util.List;
+import java.util.UUID;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import xyz.necmettincimen.marvel.marvel.application.service.UserService;
 import xyz.necmettincimen.marvel.marvel.common.ApiResponse;
-import xyz.necmettincimen.marvel.marvel.config.JwtUtil;
+import xyz.necmettincimen.marvel.marvel.domain.dto.LoginResponse;
 import xyz.necmettincimen.marvel.marvel.domain.model.User;
 
-@WebFluxTest(UserController.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class UserControllerTest {
-    @Autowired
-    private WebTestClient webTestClient;
+        @Value("${local.server.port}")
+        private int port;
 
-    @MockBean
-    private UserService userService;
-    @MockBean
-    private JwtUtil jwtUtil;
+        private WebTestClient webTestClient;
 
-    @Test
-    void getAllUsers_shouldReturnUsers() {
-        User user = new User();
-        user.setId(1L);
-        user.setUsername("testuser");
-        user.setEmail("testuser@gmail.com");
-        when(userService.getAllUsers()).thenReturn(Flux.just(user));
+        @BeforeEach
+        void setup() {
+                this.webTestClient = WebTestClient.bindToServer()
+                                .baseUrl("http://localhost:" + port)
+                                .build();
+        }
 
-        webTestClient.get()
-                .uri("/api/users")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBodyList(ApiResponse.class)
-                .hasSize(1)
-                .contains(new ApiResponse(user));
+        @Test
+        void full_flow() {
 
-        webTestClient.get()
-                .uri("/api/users/1")
-                .exchange()
-                .expectStatus().isOk();
-    }
+                User user = new User(
+                                "user_" + UUID.randomUUID().toString(),
+                                "pass_" + UUID.randomUUID().toString(),
+                                "mail_" + UUID.randomUUID().toString());
 
-    @Test
-    void registerUser_shouldReturnCreatedUser() {
-        User user = new User();
-        user.setId(null);
-        user.setUsername("testuser");
-        user.setEmail("test@gmail.com");
-        User savedUser = new User();
-        savedUser.setId(1L);
-        savedUser.setUsername("testuser");
-        savedUser.setEmail("test@gmail.com");
-        when(userService.registerUser(user)).thenReturn(Mono.just(new ApiResponse<Object>(savedUser)));
+                webTestClient.post()
+                                .uri("/api/users/public/register")
+                                .bodyValue(user)
+                                .exchange()
+                                .expectStatus().isOk()
+                                .expectBody(new ParameterizedTypeReference<ApiResponse<User>>() {
+                                })
+                                .consumeWith(response -> {
+                                        ApiResponse<User> apiResponse = response.getResponseBody();
+                                        assert apiResponse != null;
+                                        assert apiResponse.isSuccess();
+                                        assert apiResponse.getResult().getUsername().equals(user.getUsername());
+                                });
 
-        webTestClient.post()
-                .uri("/api/users/register")
-                .bodyValue(user)
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody(ApiResponse.class)
-                .isEqualTo(new ApiResponse<User>(savedUser));
+                final ApiResponse<LoginResponse>[] result = new ApiResponse[1];
+                webTestClient.post()
+                                .uri("/api/users/public/login")
+                                .bodyValue(user)
+                                .exchange()
+                                .expectStatus().isOk()
+                                .expectBody(new ParameterizedTypeReference<ApiResponse<LoginResponse>>() {
+                                })
+                                .consumeWith(response -> {
+                                        ApiResponse<LoginResponse> apiResponse = response.getResponseBody();
+                                        assert apiResponse != null;
+                                        assert apiResponse.isSuccess();
+                                        assert apiResponse.getResult().getUser().getUsername()
+                                                        .equals(user.getUsername());
+                                        result[0] = apiResponse;
+                                });
 
-        webTestClient.delete()
-                .uri("/api/users/1")
-                .exchange()
-                .expectStatus().isOk();
-    }
+                webTestClient.get()
+                                .uri("/api/users")
+                                .header("Authorization", "Bearer " + result[0].getResult().getToken())
+                                .exchange()
+                                .expectStatus().isOk()
+                                .expectBody(new ParameterizedTypeReference<ApiResponse<List<User>>>() {
+                                        
+                                })
+                                .consumeWith(response -> {
+                                        ApiResponse<List<User>> apiResponse = response.getResponseBody();
+                                        assert apiResponse != null;
+                                        assert apiResponse.isSuccess();
+                                        assert apiResponse.getResult() != null;
+                                        assert !apiResponse.getResult().isEmpty();
+                                        assert apiResponse.getResult().stream()
+                                                        .anyMatch(u -> u.getUsername().equals(user.getUsername()));
+                                });
+
+                webTestClient.get()
+                                .uri("/api/users/"+result[0].getResult().getUser().getId())
+                                .header("Authorization", "Bearer " + result[0].getResult().getToken())
+                                .exchange()
+                                .expectStatus().isOk()
+                                .expectBody(new ParameterizedTypeReference<ApiResponse<User>>() {
+                                        
+                                })
+                                .consumeWith(response -> {
+                                        ApiResponse<User> apiResponse = response.getResponseBody();
+                                        assert apiResponse != null;
+                                        assert apiResponse.isSuccess();
+                                        assert apiResponse.getResult() != null;
+                                        assert apiResponse.getResult().getUsername()
+                                                        .equals(user.getUsername());
+                                });
+                webTestClient.delete()
+                                .uri("/api/users/"+result[0].getResult().getUser().getId())
+                                .header("Authorization", "Bearer " + result[0].getResult().getToken())
+                                .exchange()
+                                .expectStatus().isOk()
+                                .expectBody(new ParameterizedTypeReference<ApiResponse<User>>() {
+                                        
+                                })
+                                .consumeWith(response -> {
+                                        ApiResponse<User> apiResponse = response.getResponseBody();
+                                        assert apiResponse != null;
+                                        assert apiResponse.isSuccess();
+                                });
+        }
+
 }

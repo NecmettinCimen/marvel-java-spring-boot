@@ -80,6 +80,10 @@ To get a local copy up and running follow these simple steps.
    ```sh
    mvn spring-boot:run
    ```
+5. Test the application
+   ```sh
+   mvn test run
+   ```
 
 ---
 
@@ -87,20 +91,14 @@ To get a local copy up and running follow these simple steps.
 
 Once the application is running, you can access the API at `http://localhost:8080/api`.
 
-Example endpoints:
-- `GET /api/characters` - List all Marvel characters
-- `GET /api/comics` - List all comics
-- `GET /api/characters/{id}` - Get character details
-
-API documentation (Swagger UI) is available at `http://localhost:8080/swagger-ui.html`.
+API documentation (Swagger UI) is available at `http://localhost:8080/swagger-ui/index.html`.
 
 ---
 
 ## Roadmap
 
-- [ ] Add authentication and authorization
-- [ ] Integrate with external Marvel API
-- [ ] Add Docker support
+- [x] Add authentication and authorization
+- [x] Add Docker support
 - [ ] Improve test coverage
 
 See the [open issues](https://github.com/necmettincimen/marvel-java-spring-boot/issues) for more.

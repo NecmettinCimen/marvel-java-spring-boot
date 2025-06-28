@@ -2,8 +2,6 @@ package xyz.necmettincimen.marvel.marvel.adapter.in.web;
 
 import java.util.List;
 
-import org.springframework.data.annotation.QueryAnnotation;
-import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.springframework.web.bind.annotation.RequestBody;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import xyz.necmettincimen.marvel.marvel.application.service.UserService;
 import xyz.necmettincimen.marvel.marvel.common.ApiResponse;
@@ -57,12 +54,14 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public ApiResponse<Mono<Void>> deleteUser(@PathVariable Long id) {
-        return new ApiResponse<Mono<Void>>(userService.deleteUser(id));
+    public Mono<ApiResponse<Void>> deleteUser(@PathVariable Long id) {
+        return userService.deleteUser(id)
+                .then(Mono.just(new ApiResponse<Void>(true, "User deleted successfully", null)))
+                .onErrorResume(e -> Mono.just(new ApiResponse<Void>(false, "Error deleting user: " + e.getMessage(), null)));
     }
 
     @PostMapping("/public/register")
-    public Mono<ApiResponse<Object>> registerUser(@RequestBody User registerRequest) {
+    public Mono<ApiResponse<User>> registerUser(@RequestBody User registerRequest) {
         return userService.registerUser(registerRequest);
     }
 

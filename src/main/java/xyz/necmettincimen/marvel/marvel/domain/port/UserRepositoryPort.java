@@ -9,6 +9,6 @@ public interface UserRepositoryPort {
     Flux<User> findAll();
     Mono<User> findById(Long id);
     Mono<User> findByUsername(String username);
-    Mono<ApiResponse<Object>> save(User user);
+    Mono<ApiResponse<User>> save(User user);
     Mono<Void> deleteById(Long id);
 }

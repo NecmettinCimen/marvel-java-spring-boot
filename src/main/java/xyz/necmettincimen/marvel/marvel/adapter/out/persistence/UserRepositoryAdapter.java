@@ -34,16 +34,16 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
     }
 
     @Override
-    public Mono<ApiResponse<Object>> save(User user) {
+    public Mono<ApiResponse<User>> save(User user) {
         return findByUsername(user.getUsername())
                 .hasElement()
                 .flatMap(exists -> {
                     if (exists) {
-                        return Mono.just(new ApiResponse<Object>(false, "Username already exists", null));
+                        return Mono.just(new ApiResponse<User>(false, "Username already exists", null));
                     }
                     user.setPassword(passwordEncoder.encode(user.getPassword()));
                     return userR2dbcRepository.save(user)
-                            .map(savedUser -> new ApiResponse<Object>(true, "User saved successfully", savedUser));
+                            .map(savedUser -> new ApiResponse<User>(true, "User saved successfully", savedUser));
                 });
     }
 

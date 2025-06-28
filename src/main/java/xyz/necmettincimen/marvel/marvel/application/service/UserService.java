@@ -27,7 +27,7 @@ public class UserService {
     public Mono<User> getUserByUsername(String username) {
         return userRepositoryPort.findByUsername(username);
     }
-    public Mono<ApiResponse<Object>> registerUser(User user){
+    public Mono<ApiResponse<User>> registerUser(User user){
         return userRepositoryPort.save(user);
     }
     public Mono<Void> deleteUser(Long id){
