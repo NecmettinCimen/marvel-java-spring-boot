@@ -1,16 +1,14 @@
 package xyz.necmettincimen.marvel.marvel.adapter.in.web;
 
-import java.util.List;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.core.ParameterizedTypeReference;
 
 import xyz.necmettincimen.marvel.marvel.common.ApiResponse;
 import xyz.necmettincimen.marvel.marvel.domain.dto.LoginResponse;
+import xyz.necmettincimen.marvel.marvel.domain.model.Rating;
 import xyz.necmettincimen.marvel.marvel.domain.model.User;
-import xyz.necmettincimen.marvel.marvel.domain.model.UserFavorite;
 
-public class UserFavoriteControllerTest extends BaseControllerTest {
+public class RatingControllerTest extends BaseControllerTest {
 
         @Test
         void full_flow() {
@@ -18,18 +16,18 @@ public class UserFavoriteControllerTest extends BaseControllerTest {
                 LoginResponse loginResponse = register_login();
                 User user = loginResponse.getUser();
 
-                final ApiResponse<UserFavorite>[] favoriteResult = new ApiResponse[1];
+                final ApiResponse<Rating>[] favoriteResult = new ApiResponse[1];
                 webTestClient.post()
-                                .uri("/api/user/favorites")
+                                .uri("/api/ratings")
                                 .header("Authorization", "Bearer " + loginResponse.getToken())
-                                .bodyValue(new UserFavorite(user.getId(), "comic", "1"))
+                                .bodyValue(new Rating(user.getId(), "comic", "1", 2))
                                 .exchange()
                                 .expectStatus().isOk()
-                                .expectBody(new ParameterizedTypeReference<ApiResponse<UserFavorite>>() {
+                                .expectBody(new ParameterizedTypeReference<ApiResponse<Rating>>() {
 
                                 })
                                 .consumeWith(response -> {
-                                        ApiResponse<UserFavorite> apiResponse = response.getResponseBody();
+                                        ApiResponse<Rating> apiResponse = response.getResponseBody();
                                         assert apiResponse != null;
                                         assert apiResponse.isSuccess();
                                         assert apiResponse.getResult() != null;
@@ -37,49 +35,35 @@ public class UserFavoriteControllerTest extends BaseControllerTest {
                                 });
 
                 webTestClient.get()
-                                .uri("/api/user/favorites/" + favoriteResult[0].getResult().getUserId()+"?page=0&pageSize=10")
+                                .uri("/api/ratings/average?targetType=" + favoriteResult[0].getResult().getTargetType()
+                                                + "&targetId=" + favoriteResult[0].getResult().getTargetId())
                                 .header("Authorization", "Bearer " + loginResponse.getToken())
                                 .exchange()
                                 .expectStatus().isOk()
-                                .expectBody(new ParameterizedTypeReference<ApiResponse<List<UserFavorite>>>() {
+                                .expectBody(new ParameterizedTypeReference<ApiResponse<Double>>() {
 
                                 })
                                 .consumeWith(response -> {
-                                        ApiResponse<List<UserFavorite>> apiResponse = response.getResponseBody();
+                                        ApiResponse<Double> apiResponse = response.getResponseBody();
                                         assert apiResponse != null;
                                         assert apiResponse.isSuccess();
                                         assert apiResponse.getResult() != null;
                                 });
-
                 webTestClient.get()
-                                .uri("/api/user/favorites/0?page=0&pageSize=10")
+                                .uri("/api/ratings/average?targetType=CHARACTER&targetId=0")
                                 .header("Authorization", "Bearer " + loginResponse.getToken())
                                 .exchange()
                                 .expectStatus().isOk()
-                                .expectBody(new ParameterizedTypeReference<ApiResponse<List<UserFavorite>>>() {
+                                .expectBody(new ParameterizedTypeReference<ApiResponse<Double>>() {
 
                                 })
                                 .consumeWith(response -> {
-                                        ApiResponse<List<UserFavorite>> apiResponse = response.getResponseBody();
+                                        ApiResponse<Double> apiResponse = response.getResponseBody();
                                         assert apiResponse != null;
                                         assert apiResponse.isSuccess();
                                         assert apiResponse.getResult() != null;
                                 });
 
-                webTestClient.post()
-                                .uri("/api/user/favorites/delete")
-                                .header("Authorization", "Bearer " + loginResponse.getToken())
-                                .bodyValue(favoriteResult[0].getResult())
-                                .exchange()
-                                .expectStatus().isOk()
-                                .expectBody(new ParameterizedTypeReference<ApiResponse<Void>>() {
-
-                                })
-                                .consumeWith(response -> {
-                                        ApiResponse<Void> apiResponse = response.getResponseBody();
-                                        assert apiResponse != null;
-                                        assert apiResponse.isSuccess();
-                                });
         }
 
 }

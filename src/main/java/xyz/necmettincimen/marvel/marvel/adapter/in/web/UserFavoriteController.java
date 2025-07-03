@@ -42,8 +42,8 @@ public class UserFavoriteController {
     @GetMapping("/{userId}")
     public Mono<ApiResponse<List<UserFavorite>>> getFavorites(
             @PathVariable Long userId,
-            @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "pageSize", defaultValue = "10") int pageSize,
+            @RequestParam int page,
+            @RequestParam int pageSize,
             ServerWebExchange exchange) {
         if (userId == 0)
             userId = jwtUtil.extractId(exchange);

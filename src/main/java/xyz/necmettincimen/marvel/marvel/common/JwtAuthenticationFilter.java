@@ -25,10 +25,10 @@ public class JwtAuthenticationFilter implements org.springframework.web.server.W
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, org.springframework.web.server.WebFilterChain chain) {
         String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+        if (authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
             String username = jwtUtil.extractUsername(token);
-            if (username != null && jwtUtil.validateToken(token, username)) {
+            if (jwtUtil.validateToken(token, username)) {
                 Authentication auth = new UsernamePasswordAuthenticationToken(
                         username,
                         null,

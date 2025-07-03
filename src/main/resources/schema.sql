@@ -3,8 +3,13 @@ CREATE TABLE IF NOT EXISTS users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     username VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL
+    email VARCHAR(255) NOT NULL,
+    profile_photo VARCHAR(1000) NULL
 );
+
+INSERT INTO users (username, password, email)
+select 'test_user', '$2a$10$zmTB.bx.z5onUFz366UZxeiqlWjU0RN.zMULg6hytrfGUm9mJDMl6', 'test@user'
+WHERE NOT EXISTS (SELECT 1 FROM users WHERE username = 'test_user');
 
 CREATE TABLE IF NOT EXISTS user_favorites (
     id BIGSERIAL PRIMARY KEY,
@@ -12,4 +17,22 @@ CREATE TABLE IF NOT EXISTS user_favorites (
     user_id BIGINT,
     favorite_type VARCHAR(255),
     favorite_id VARCHAR(255)
+);
+
+CREATE TABLE IF NOT EXISTS ratings (
+    id BIGSERIAL PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    user_id BIGINT NOT NULL,
+    target_type VARCHAR(255) NOT NULL,
+    target_id VARCHAR(255) NOT NULL,
+    score INT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS rankings (
+    id BIGSERIAL PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    user_id BIGINT NOT NULL,
+    target_type VARCHAR(255) NOT NULL,
+    target_id VARCHAR(255) NOT NULL,
+    rank_index INT NOT NULL
 );

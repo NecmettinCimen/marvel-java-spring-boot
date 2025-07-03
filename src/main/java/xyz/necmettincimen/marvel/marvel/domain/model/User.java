@@ -10,6 +10,7 @@ public class User extends BaseModel {
     private String username;
     private String password;
     private String email;
+    private String profilePhoto;
 
     public User() {
     }
@@ -18,5 +19,9 @@ public class User extends BaseModel {
         this.username = username;
         this.password = password;
         this.email = email;
+    }
+    public User(String username, String password) {
+        this.username = username;
+        this.password = password;
     }
 }

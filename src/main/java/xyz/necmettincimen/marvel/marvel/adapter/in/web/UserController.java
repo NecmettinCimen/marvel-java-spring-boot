@@ -36,8 +36,8 @@ public class UserController {
 
     @GetMapping
     public Mono<ApiResponse<List<User>>> getAllUsers(
-            @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "pageSize", defaultValue = "10") int pageSize) {
+            @RequestParam int page,
+            @RequestParam int pageSize) {
         return userService.getAllUsers(page, pageSize)
                 .collectList()
                 .map(users -> new ApiResponse<List<User>>(users));

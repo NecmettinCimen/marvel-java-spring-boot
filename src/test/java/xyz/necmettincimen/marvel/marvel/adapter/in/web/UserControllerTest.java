@@ -95,6 +95,7 @@ public class UserControllerTest extends BaseControllerTest {
                                 });
 
                 user.setId(result[0].getResult().getUser().getId() + 1);
+                user.setPassword("password");
                 webTestClient.put()
                                 .uri("/api/users/update")
                                 .header("Authorization", "Bearer " + result[0].getResult().getToken())
@@ -107,7 +108,7 @@ public class UserControllerTest extends BaseControllerTest {
                                 });
 
                 webTestClient.get()
-                                .uri("/api/users")
+                                .uri("/api/users?page=0&pageSize=10")
                                 .header("Authorization", "Bearer " + result[0].getResult().getToken())
                                 .exchange()
                                 .expectStatus().isOk()
