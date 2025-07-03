@@ -36,3 +36,21 @@ CREATE TABLE IF NOT EXISTS rankings (
     target_id VARCHAR(255) NOT NULL,
     rank_index INT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS reading_lists (
+    id BIGSERIAL PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    user_id BIGINT NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    description VARCHAR(1024) NOT NULL,
+    is_public bit NOT NULL,
+    cover_image_url VARCHAR(1024) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS reading_list_items (
+    id BIGSERIAL PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    reading_list_id BIGINT NOT NULL,
+    target_type VARCHAR(255) NOT NULL,
+    target_id VARCHAR(255) NOT NULL
+);

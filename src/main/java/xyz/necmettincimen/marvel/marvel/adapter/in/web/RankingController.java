@@ -37,7 +37,7 @@ public class RankingController {
     public Flux<ApiResponse<Ranking>> getUserRankings(@RequestParam Long userId, @RequestParam String targetType) {
         return rankingService.getUserRanking(userId, targetType)
                 .map(ranking -> new ApiResponse<>(ranking))
-                .onErrorResume(e -> Mono
+                .onErrorResume(e -> Flux
                         .just(new ApiResponse<>(false, "Error fetching user rankings: " + e.getMessage(), null)));
     }
 
@@ -45,7 +45,7 @@ public class RankingController {
     public Flux<ApiResponse<Ranking>> getAutoRankings(@RequestParam String targetType) {
         return rankingService.getAllRankings(targetType)
                 .map(f -> new ApiResponse<>(f))
-                .onErrorResume(e -> Mono
+                .onErrorResume(e -> Flux
                         .just(new ApiResponse<>(false, "Error fetching auto rankings: " + e.getMessage(), null)));
     }
 

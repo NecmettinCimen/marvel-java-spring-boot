@@ -32,6 +32,7 @@
   - [Installation](#installation)
 - [Usage](#usage)
 - [Roadmap](#roadmap)
+- [Architecture](#architecture)
 - [Contributing](#contributing)
 - [License](#license)
 - [Contact](#contact)
@@ -104,6 +105,48 @@ API documentation (Swagger UI) is available at `http://localhost:8080/swagger-ui
 See the [open issues](https://github.com/necmettincimen/marvel-java-spring-boot/issues) for more.
 
 ---
+---
+
+## Architecture
+
+This project follows the **Hexagonal Architecture (Ports and Adapters)** pattern:
+
+- **Domain Layer:** Contains core business logic and domain models.
+- **Ports:** Interfaces that define the operations for external systems (e.g., repositories, services).
+- **Adapters:** Implementations of ports for specific technologies (e.g., database, web).
+- **Application Layer:** Contains service classes that orchestrate business logic.
+- **Web Layer:** REST controllers for API endpoints.
+
+**Key Technologies:**
+- **Spring Boot:** Application framework
+- **Spring WebFlux:** Reactive REST API
+- **Spring Data R2DBC:** Reactive database access
+- **PostgreSQL:** Main database
+- **JWT:** Authentication
+- **Lombok:** Boilerplate code reduction
+- **Docker:** Containerization
+- **JUnit 5:** Unit and integration testing
+
+---
+
+## Example Folder Structure
+
+```
+src/
+  main/
+    java/
+      xyz/necmettincimen/marvel/marvel/
+        domain/         # Domain models and ports
+        adapter/
+          in/web/       # REST controllers (inbound adapters)
+          out/persistence/ # Database adapters (outbound)
+        application/service/ # Service layer
+    resources/
+      db/migration/     # Migration scripts
+      application.properties
+  test/
+    java/...
+```
 
 ## Contributing
 
