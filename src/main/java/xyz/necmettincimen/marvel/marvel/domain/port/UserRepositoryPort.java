@@ -6,7 +6,7 @@ import xyz.necmettincimen.marvel.marvel.common.ApiResponse;
 import xyz.necmettincimen.marvel.marvel.domain.model.User;
 
 public interface UserRepositoryPort {
-    Flux<User> findAll();
+    Flux<User> findAll(int page, int pageSize);
     Mono<User> findById(Long id);
     Mono<User> findByUsername(String username);
     Mono<ApiResponse<User>> save(User user);

@@ -19,8 +19,10 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
     }
 
     @Override
-    public Flux<User> findAll() {
-        return userR2dbcRepository.findAll();
+    public Flux<User> findAll(int page, int pageSize) {
+        return userR2dbcRepository.findAllByOrderByIdDesc()
+                .skip(page * pageSize)
+                .take(pageSize);
     }
 
     @Override

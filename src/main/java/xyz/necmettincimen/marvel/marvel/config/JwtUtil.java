@@ -4,6 +4,7 @@ import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
 
+import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -21,7 +22,9 @@ public class JwtUtil {
     @Value("${jwt.expiration}")
     private long EXPIRATION_TIME;
 
-    private Key key;
+    private SecretKey key;
+
+    private static final String CLAIM_ID = "id";
 
     @PostConstruct
     public void init() {
@@ -29,9 +32,11 @@ public class JwtUtil {
         this.key = new SecretKeySpec(decodedKey, 0, decodedKey.length, "HmacSHA256");
     }
 
-    public String generateToken(String username) {
+    public String generateToken(String username, String id) {
         return Jwts.builder()
                 .subject(username)
+                .claim("authorities", "ROLE_USER")
+                .claim(CLAIM_ID, id)
                 .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(key)
                 .compact();
@@ -39,15 +44,25 @@ public class JwtUtil {
 
     public String extractUsername(String token) {
         return Jwts.parser()
-                .setSigningKey(key)
+                .verifyWith(key)
                 .build()
-                .parseClaimsJws(token)
-                .getBody()
+                .parseSignedClaims(token)
+                .getPayload()
                 .getSubject();
     }
 
     public boolean validateToken(String token, String username) {
         final String tokenUsername = extractUsername(token);
         return (tokenUsername.equals(username));
+    }
+
+    public Long extractId(String currentToken) {
+        return Long.parseLong(
+                Jwts.parser()
+                        .verifyWith(key)
+                        .build()
+                        .parseSignedClaims(currentToken)
+                        .getPayload()
+                        .getOrDefault(CLAIM_ID, "0").toString());
     }
 }

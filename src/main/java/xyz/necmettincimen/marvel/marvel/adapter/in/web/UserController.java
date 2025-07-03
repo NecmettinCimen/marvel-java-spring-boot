@@ -37,7 +37,7 @@ public class UserController {
     public Mono<ApiResponse<List<User>>> getAllUsers(
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "pageSize", defaultValue = "10") int pageSize) {
-        return userService.getAllUsers()
+        return userService.getAllUsers(page, pageSize)
                 .collectList()
                 .map(users -> new ApiResponse<List<User>>(users));
     }
@@ -72,7 +72,7 @@ public class UserController {
         return userService.getUserByUsername(loginRequest.getUsername())
                 .flatMap(user -> {
                     if (passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-                        String token = jwtUtil.generateToken(loginRequest.getUsername());
+                        String token = jwtUtil.generateToken(loginRequest.getUsername(), user.getId().toString());
                         return Mono.just(new ApiResponse<LoginResponse>(new LoginResponse(token, user)));
                     } else {
                         return Mono

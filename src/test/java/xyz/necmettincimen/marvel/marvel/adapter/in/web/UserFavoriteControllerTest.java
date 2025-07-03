@@ -1,6 +1,5 @@
 package xyz.necmettincimen.marvel.marvel.adapter.in.web;
 
-import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -9,9 +8,9 @@ import org.springframework.core.ParameterizedTypeReference;
 import xyz.necmettincimen.marvel.marvel.common.ApiResponse;
 import xyz.necmettincimen.marvel.marvel.domain.dto.LoginResponse;
 import xyz.necmettincimen.marvel.marvel.domain.model.User;
+import xyz.necmettincimen.marvel.marvel.domain.model.UserFavorite;
 
-public class UserControllerTest extends BaseControllerTest {
-
+public class UserFavoriteControllerTest extends BaseControllerTest {
 
         @Test
         void full_flow() {
@@ -52,26 +51,26 @@ public class UserControllerTest extends BaseControllerTest {
                                         result[0] = apiResponse;
                                 });
 
-                webTestClient.get()
-                                .uri("/api/users")
+                final ApiResponse<UserFavorite>[] favoriteResult = new ApiResponse[1];
+                webTestClient.post()
+                                .uri("/api/user/favorites")
                                 .header("Authorization", "Bearer " + result[0].getResult().getToken())
+                                .bodyValue(new UserFavorite(result[0].getResult().getUser().getId(), "comic", "1"))
                                 .exchange()
                                 .expectStatus().isOk()
-                                .expectBody(new ParameterizedTypeReference<ApiResponse<List<User>>>() {
+                                .expectBody(new ParameterizedTypeReference<ApiResponse<UserFavorite>>() {
                                         
                                 })
                                 .consumeWith(response -> {
-                                        ApiResponse<List<User>> apiResponse = response.getResponseBody();
+                                        ApiResponse<UserFavorite> apiResponse = response.getResponseBody();
                                         assert apiResponse != null;
                                         assert apiResponse.isSuccess();
                                         assert apiResponse.getResult() != null;
-                                        assert !apiResponse.getResult().isEmpty();
-                                        assert apiResponse.getResult().stream()
-                                                        .anyMatch(u -> u.getUsername().equals(user.getUsername()));
+                                        favoriteResult[0] = apiResponse;
                                 });
 
                 webTestClient.get()
-                                .uri("/api/users/"+result[0].getResult().getUser().getId())
+                                .uri("/api/user/favorites/"+favoriteResult[0].getResult().getUserId())
                                 .header("Authorization", "Bearer " + result[0].getResult().getToken())
                                 .exchange()
                                 .expectStatus().isOk()
@@ -83,20 +82,19 @@ public class UserControllerTest extends BaseControllerTest {
                                         assert apiResponse != null;
                                         assert apiResponse.isSuccess();
                                         assert apiResponse.getResult() != null;
-                                        assert apiResponse.getResult().getUsername()
-                                                        .equals(user.getUsername());
                                 });
 
-                webTestClient.delete()
-                                .uri("/api/users/"+result[0].getResult().getUser().getId())
+                webTestClient.post()
+                                .uri("/api/user/favorites/delete")
                                 .header("Authorization", "Bearer " + result[0].getResult().getToken())
+                                .bodyValue(favoriteResult[0].getResult())
                                 .exchange()
                                 .expectStatus().isOk()
-                                .expectBody(new ParameterizedTypeReference<ApiResponse<User>>() {
+                                .expectBody(new ParameterizedTypeReference<ApiResponse<Void>>() {
                                         
                                 })
                                 .consumeWith(response -> {
-                                        ApiResponse<User> apiResponse = response.getResponseBody();
+                                        ApiResponse<Void> apiResponse = response.getResponseBody();
                                         assert apiResponse != null;
                                         assert apiResponse.isSuccess();
                                 });

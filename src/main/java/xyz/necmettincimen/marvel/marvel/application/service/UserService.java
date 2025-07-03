@@ -16,8 +16,8 @@ public class UserService {
         this.userRepositoryPort = userRepositoryPort;
     }
 
-    public Flux<User> getAllUsers() {
-        return userRepositoryPort.findAll();
+    public Flux<User> getAllUsers(int page, int pageSize) {
+        return userRepositoryPort.findAll(page, pageSize);
     }
 
     public Mono<User> getUserById(Long id) {
