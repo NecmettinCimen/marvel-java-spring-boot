@@ -11,4 +11,5 @@ public interface UserRepositoryPort {
     Mono<User> findByUsername(String username);
     Mono<ApiResponse<User>> save(User user);
     Mono<Void> deleteById(Long id);
+    Mono<ApiResponse<User>> update(User updateRequest);
 }

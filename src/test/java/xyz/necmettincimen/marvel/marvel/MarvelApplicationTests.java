@@ -8,6 +8,7 @@ class MarvelApplicationTests {
 
 	@Test
 	void contextLoads() {
+        MarvelApplication.main(new String[]{});
 	}
 
 }

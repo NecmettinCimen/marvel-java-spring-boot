@@ -8,5 +8,5 @@ import xyz.necmettincimen.marvel.marvel.domain.model.UserFavorite;
 
 @Repository
 public interface UserFavoriteR2dbcRepository extends ReactiveCrudRepository<UserFavorite, Long> {
-    Flux<UserFavorite> findAllByUserId(Long userId);    
+    Flux<UserFavorite> findAllByUserId(Long userId);
 }

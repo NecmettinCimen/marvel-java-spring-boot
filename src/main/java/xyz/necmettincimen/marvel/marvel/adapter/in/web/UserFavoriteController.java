@@ -2,8 +2,6 @@ package xyz.necmettincimen.marvel.marvel.adapter.in.web;
 
 import java.util.List;
 
-import org.springframework.http.HttpHeaders;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,7 +31,8 @@ public class UserFavoriteController {
 
     @PostMapping
     public Mono<ApiResponse<UserFavorite>> addFavorite(@RequestBody UserFavorite favorite, ServerWebExchange exchange) {
-        favorite.setUserId(jwtUtil.extractId(exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION)));
+        favorite.setUserId(jwtUtil.extractId(exchange));
+        favorite.setId(null);
         return userFavoriteService.addFavorite(favorite)
                 .map(response -> new ApiResponse<>(response))
                 .onErrorResume(response -> Mono
@@ -47,7 +46,7 @@ public class UserFavoriteController {
             @RequestParam(name = "pageSize", defaultValue = "10") int pageSize,
             ServerWebExchange exchange) {
         if (userId == 0)
-            userId = jwtUtil.extractId(exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION));
+            userId = jwtUtil.extractId(exchange);
         return userFavoriteService.getFavorites(userId, page, pageSize)
                 .collectList()
                 .map(favorites -> new ApiResponse<List<UserFavorite>>(favorites));
@@ -56,7 +55,7 @@ public class UserFavoriteController {
 
     @PostMapping("/delete")
     public Mono<ApiResponse<Void>> deleteFavorite(@RequestBody UserFavorite favorite, ServerWebExchange exchange) {
-        favorite.setUserId(jwtUtil.extractId(exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION)));
+        favorite.setUserId(jwtUtil.extractId(exchange));
         return userFavoriteService.deleteFavorite(favorite)
                 .then(Mono.just(new ApiResponse<Void>(true, "Favorite deleted successfully", null)))
                 .onErrorResume(e -> Mono

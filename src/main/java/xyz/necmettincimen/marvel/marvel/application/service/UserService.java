@@ -33,4 +33,8 @@ public class UserService {
     public Mono<Void> deleteUser(Long id){
         return userRepositoryPort.deleteById(id);
     }
+
+    public Mono<ApiResponse<User>> updateUser(User updateRequest) {
+        return userRepositoryPort.update(updateRequest);
+    }
 }

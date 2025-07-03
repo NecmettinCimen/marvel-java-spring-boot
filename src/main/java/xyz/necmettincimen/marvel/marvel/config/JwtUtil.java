@@ -1,6 +1,5 @@
 package xyz.necmettincimen.marvel.marvel.config;
 
-import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
 
@@ -8,7 +7,9 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
 
 import io.jsonwebtoken.Jwts;
 import jakarta.annotation.PostConstruct;
@@ -56,7 +57,9 @@ public class JwtUtil {
         return (tokenUsername.equals(username));
     }
 
-    public Long extractId(String currentToken) {
+    public Long extractId(ServerWebExchange exchange) {
+        String currentToken = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION).split(" ")[1];
+
         return Long.parseLong(
                 Jwts.parser()
                         .verifyWith(key)

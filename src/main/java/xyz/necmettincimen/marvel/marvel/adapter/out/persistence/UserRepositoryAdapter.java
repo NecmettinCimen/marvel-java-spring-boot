@@ -54,4 +54,20 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
         return userR2dbcRepository.deleteById(id);
     }
 
+    @Override
+    public Mono<ApiResponse<User>> update(User updateRequest) {
+        return findById(updateRequest.getId())
+                .flatMap(existingUser -> {
+                    if (existingUser == null) {
+                        return Mono.just(new ApiResponse<User>(false, "User not found", null));
+                    }
+                    existingUser.setUsername(updateRequest.getUsername());
+                    existingUser.setEmail(updateRequest.getEmail());
+                    if(updateRequest.getPassword() != null || existingUser.getPassword() != updateRequest.getPassword()) 
+                    existingUser.setPassword(passwordEncoder.encode(updateRequest.getPassword()));
+                    return userR2dbcRepository.save(existingUser)
+                            .map(savedUser -> new ApiResponse<User>(true, "User updated successfully", savedUser));
+                });
+    }
+
 }

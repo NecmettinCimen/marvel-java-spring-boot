@@ -7,10 +7,11 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.bind.annotation.RequestBody;
 import reactor.core.publisher.Mono;
 import xyz.necmettincimen.marvel.marvel.application.service.UserService;
@@ -57,12 +58,20 @@ public class UserController {
     public Mono<ApiResponse<Void>> deleteUser(@PathVariable Long id) {
         return userService.deleteUser(id)
                 .then(Mono.just(new ApiResponse<Void>(true, "User deleted successfully", null)))
-                .onErrorResume(e -> Mono.just(new ApiResponse<Void>(false, "Error deleting user: " + e.getMessage(), null)));
+                .onErrorResume(
+                        e -> Mono.just(new ApiResponse<Void>(false, "Error deleting user: " + e.getMessage(), null)));
     }
 
     @PostMapping("/public/register")
     public Mono<ApiResponse<User>> registerUser(@RequestBody User registerRequest) {
         return userService.registerUser(registerRequest);
+    }
+
+    @PutMapping("/update")
+    public Mono<ApiResponse<User>> updateUser(@RequestBody User updateRequest, ServerWebExchange exchange) {
+        if (updateRequest.getId() == 0)
+            updateRequest.setId(jwtUtil.extractId(exchange));
+        return userService.updateUser(updateRequest);
     }
 
     @PostMapping("/public/login")
