@@ -25,7 +25,7 @@ public class JwtAuthenticationFilter implements org.springframework.web.server.W
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, org.springframework.web.server.WebFilterChain chain) {
         String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-        if (authHeader.startsWith("Bearer ")) {
+        if (authHeader != null) {
             String token = authHeader.substring(7);
             String username = jwtUtil.extractUsername(token);
             if (jwtUtil.validateToken(token, username)) {
@@ -34,7 +34,8 @@ public class JwtAuthenticationFilter implements org.springframework.web.server.W
                         null,
                         Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))); // veya "USER"
                 return chain.filter(exchange)
-                        .contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(new SecurityContextImpl(auth))));
+                        .contextWrite(ReactiveSecurityContextHolder
+                                .withSecurityContext(Mono.just(new SecurityContextImpl(auth))));
             }
         }
         return chain.filter(exchange);
