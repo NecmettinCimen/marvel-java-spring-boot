@@ -1,6 +1,7 @@
 package xyz.necmettincimen.marvel.marvel.common;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
@@ -13,12 +14,25 @@ import org.springframework.web.cors.reactive.CorsConfigurationSource;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebFluxSecurity
 public class SecurityConfig {
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @Value("${cors.allowed-origins}")
+    private String allowedOrigins;
+
+    @Value("${cors.allowed-methods}")
+    private String allowedMethods;
+
+    @Value("${cors.allowed-headers}")
+    private String allowedHeaders;
+
+    @Value("${cors.allow-credentials}")
+    private boolean allowCredentials;
 
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
@@ -42,12 +56,19 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:8080", "http://localhost:5173", "https://marvel-java-app.necmettincimen.xyz", "https://nec-ocelot-gateway.necmettincimen.xyz")); // İzin verilen kaynaklar
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS")); // İzin verilen HTTP metotları
-        configuration.setAllowedHeaders(Arrays.asList("*")); // İzin verilen başlıklar
-        configuration.setAllowCredentials(true); // Kimlik bilgilerine (cookie, HTTP authentication) izin ver
+        
+        // Properties dosyasından değerleri al ve listeye çevir
+        List<String> origins = Arrays.asList(allowedOrigins.split(","));
+        List<String> methods = Arrays.asList(allowedMethods.split(","));
+        List<String> headers = Arrays.asList(allowedHeaders.split(","));
+        
+        configuration.setAllowedOrigins(origins);
+        configuration.setAllowedMethods(methods);
+        configuration.setAllowedHeaders(headers);
+        configuration.setAllowCredentials(allowCredentials);
+        
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration); // Tüm path'ler için geçerli
+        source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 }
