@@ -42,7 +42,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:8080", "https://marvel-java-app.necmettincimen.xyz", "https://nec-ocelot-gateway.necmettincimen.xyz")); // İzin verilen kaynaklar
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:8080", "http://localhost:5173", "https://marvel-java-app.necmettincimen.xyz", "https://nec-ocelot-gateway.necmettincimen.xyz")); // İzin verilen kaynaklar
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS")); // İzin verilen HTTP metotları
         configuration.setAllowedHeaders(Arrays.asList("*")); // İzin verilen başlıklar
         configuration.setAllowCredentials(true); // Kimlik bilgilerine (cookie, HTTP authentication) izin ver
