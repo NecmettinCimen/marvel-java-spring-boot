@@ -43,8 +43,8 @@ CREATE TABLE IF NOT EXISTS reading_lists (
     user_id BIGINT NOT NULL,
     name VARCHAR(255) NOT NULL,
     description VARCHAR(1024) NOT NULL,
-    is_public bit NOT NULL,
-    cover_image_url VARCHAR(1024) NOT NULL
+    is_public boolean NOT NULL,
+    cover_image_url VARCHAR(1024)  
 );
 
 CREATE TABLE IF NOT EXISTS reading_list_items (

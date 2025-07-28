@@ -6,6 +6,8 @@ import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.WebFilter;
+import org.springframework.web.server.WebFilterChain;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import reactor.core.publisher.Mono;
@@ -14,7 +16,7 @@ import xyz.necmettincimen.marvel.marvel.config.JwtUtil;
 import java.util.Collections;
 
 @Component
-public class JwtAuthenticationFilter implements org.springframework.web.server.WebFilter {
+public class JwtAuthenticationFilter implements WebFilter {
 
     private final JwtUtil jwtUtil;
 
@@ -23,7 +25,7 @@ public class JwtAuthenticationFilter implements org.springframework.web.server.W
     }
 
     @Override
-    public Mono<Void> filter(ServerWebExchange exchange, org.springframework.web.server.WebFilterChain chain) {
+    public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
         if (authHeader != null) {
             String token = authHeader.substring(7);

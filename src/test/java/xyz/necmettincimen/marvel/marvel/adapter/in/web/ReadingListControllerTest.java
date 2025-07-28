@@ -1,5 +1,7 @@
 package xyz.necmettincimen.marvel.marvel.adapter.in.web;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.core.ParameterizedTypeReference;
 
@@ -49,17 +51,19 @@ public class ReadingListControllerTest extends BaseControllerTest {
                 User user = loginResponse.getUser();
                 webTestClient.get()
                                 .uri(uriBuilder -> uriBuilder
-                                                .path("/api/readingLists/{userId}")
+                                                .path("/api/readingLists/"+user.getId())
                                                 .queryParam("page", 0)
                                                 .queryParam("pageSize", 10)
-                                                .build(user.getId()))
+                                                .build())
                                 .header("Authorization", "Bearer " + loginResponse.getToken())
                                 .exchange()
                                 .expectStatus().isOk()
-                                .expectBody(new ParameterizedTypeReference<ApiResponse<Object>>() {
+                                .expectBody(new ParameterizedTypeReference<ApiResponse<List<ReadingList>>>() {
                                 })
                                 .consumeWith(response -> {
-                                        assert response.getResponseBody() != null;
+                                        ApiResponse<List<ReadingList>> apiResponse = response.getResponseBody();
+                                        assert apiResponse != null;
+                                        assert apiResponse.isSuccess();
                                 });
         }
 

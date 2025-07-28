@@ -27,7 +27,7 @@ public class ReadingListController {
     }
 
     @GetMapping("/{userId}")
-    Mono<Object> findAllByUserId(@RequestParam Long userId, @RequestParam int page, @RequestParam int pageSize) {
+    Mono<ApiResponse<List<ReadingList>>> findAllByUserId(Long userId, @RequestParam int page, @RequestParam int pageSize) {
         return readingListService.findAllByUserId(userId, page, pageSize).collectList().map(m -> new ApiResponse<>(m));
     }
 
